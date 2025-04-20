@@ -7,6 +7,7 @@ import android.location.LocationManager
 import android.os.Build
 import android.os.Looper
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.Granularity
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -25,29 +26,31 @@ class DefaultLocationClient(
     override fun getLocationUpdates(interval: Long): Flow<Location> {
         return callbackFlow {
             if (!context.hasLocationPermission()) {
-                throw LocationClient.LocationException("Missing locationpermission")
+                throw LocationClient.LocationException("Missing location permission")
             }
-            val locationManager =
-                context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            val isGPSEnaled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-            val isInternetEnabled =
-                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
 
-            if (!isGPSEnaled && !isInternetEnabled) {
-                throw LocationClient.LocationException("Gps is disabled")
+            val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            val isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+            val isInternetEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+
+            if (!isGPSEnabled && !isInternetEnabled) {
+                throw LocationClient.LocationException("GPS is disabled")
             }
 
             val request = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                // API 31+ (Android 12) uchun
+                // Android 12 (API 31) va undan yuqori uchun
                 LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, interval)
                     .setMinUpdateIntervalMillis(interval)
+                    .setGranularity(Granularity.GRANULARITY_PERMISSION_LEVEL)
+                    .setWaitForAccurateLocation(false)
                     .build()
             } else {
-                // Eski API’lar uchun (deprekat bo‘lgan, lekin ishlaydi)
+                // Android 11 va past versiyalar uchun
                 @Suppress("DEPRECATION")
                 LocationRequest.create().apply {
-                    this.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+                    priority = LocationRequest.PRIORITY_HIGH_ACCURACY
                     this.interval = interval
+                    this.fastestInterval = interval // MUHIM: minimum intervalni belgilaymiz
                 }
             }
 
@@ -56,22 +59,22 @@ class DefaultLocationClient(
                     super.onLocationResult(result)
                     result.locations.lastOrNull()?.let { location ->
                         launch { send(location) }
-
                     }
                 }
             }
+
             client.requestLocationUpdates(
                 request,
                 locationCallback,
                 Looper.getMainLooper()
             )
+
             awaitClose {
                 client.removeLocationUpdates(locationCallback)
             }
         }
-
-
     }
+
 
 }
 

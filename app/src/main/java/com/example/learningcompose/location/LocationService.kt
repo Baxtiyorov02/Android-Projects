@@ -73,14 +73,11 @@ class LocationService:Service() {
 
         val notificationManager=getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        locationClient.getLocationUpdates(1000L).
+        locationClient.getLocationUpdates(60000L).
                 catch { e -> e.printStackTrace() }
             .onEach { location->
                 val lag=location.latitude.toString()
                 val long=location.longitude.toString()
-
-               // Toast.makeText(applicationContext, "lag :$lag,  long: $long", Toast.LENGTH_SHORT).show()
-
                 val updateNotification=notification.setContentTitle(
                     "Location: ($lag,$long)"
                 )
