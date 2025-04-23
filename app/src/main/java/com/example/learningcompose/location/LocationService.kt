@@ -4,9 +4,11 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.location.Geocoder
 import android.os.Build
 import android.os.IBinder
 import android.provider.Settings
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.example.learningcompose.R
 import com.google.android.gms.location.LocationServices
@@ -17,6 +19,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import java.util.Locale
 
 class LocationService:Service() {
 
@@ -76,11 +79,17 @@ class LocationService:Service() {
         locationClient.getLocationUpdates(60000L).
                 catch { e -> e.printStackTrace() }
             .onEach { location->
-                val lag=location.latitude.toString()
+                val lat=location.latitude.toString()
                 val long=location.longitude.toString()
+
+                val mapsUrl = "https://www.google.com/maps/search/?api=1&query=$lat,$long"
+              // val url_loc= convertUrl(lat.toDouble(),long.toDouble())
+                println("AAAAAAAAAAAAAAAA: $mapsUrl")
+
                 val updateNotification=notification.setContentTitle(
-                    "Location: ($lag,$long)"
-                )
+                  //  "Location: ($lat,$long)"
+                    "Location: ($mapsUrl)"
+                     )
 
                 notificationManager.notify(1,updateNotification.build())
             }.launchIn(serviceScope)
@@ -89,6 +98,22 @@ class LocationService:Service() {
 
                 }
 
+    private fun convertUrl(long: Double, lag: Double): String{
+        val address:String
+
+        val geocoder = Geocoder(applicationContext, Locale.getDefault())
+        val addresses = geocoder.getFromLocation(long, lag, 1)
+
+        if (!addresses.isNullOrEmpty()) {
+              address = addresses[0].getAddressLine(0)
+             // address — bu tayyor manzil: "Olmazor tumani, Toshkent, O'zbekiston"
+
+         }
+        else{
+            address="Unknown"
+        }
+        return address
+    }
 
 
     private fun stop() {
