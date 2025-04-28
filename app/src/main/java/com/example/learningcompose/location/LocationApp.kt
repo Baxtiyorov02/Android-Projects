@@ -5,7 +5,10 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.location.LocationManager
 import android.os.Build
+import com.example.learningcompose.manager.AppLocationManager
+import com.google.android.gms.location.LocationServices
 
 class LocationApp: Application()  {
 

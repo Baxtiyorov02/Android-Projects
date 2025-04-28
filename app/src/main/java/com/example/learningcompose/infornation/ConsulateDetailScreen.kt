@@ -39,10 +39,11 @@ fun ConsulateDetailScreen(consulate: Consulate) {
                 .padding(12.dp)
         ) {
 
-            // Rasm (ko'rinmay qolmasligi uchun .FillWidth + .Clip)
+            // Rasm
             Image(
                 painter = painterResource(id = consulate.imageResId),
                 contentDescription = "${consulate.name} rasmi",
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(IntrinsicSize.Min)
@@ -52,7 +53,6 @@ fun ConsulateDetailScreen(consulate: Consulate) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Karta shaklida kontent
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -72,6 +72,19 @@ fun ConsulateDetailScreen(consulate: Consulate) {
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
+
+                    // Masofa (chiroyli shaklda)
+                    consulate.distance?.let { distance ->
+                        val formattedDistance = formatDistance(distance)
+                        Text(
+                            text = "📏 Masofa: $formattedDistance",
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
 
                     // Manzil
                     Text(
@@ -104,5 +117,16 @@ fun ConsulateDetailScreen(consulate: Consulate) {
                 }
             }
         }
+    }
+}
+
+/**
+ * Masofani metr yoki kilometr shaklida chiroyli formatlab qaytaradi
+ */
+private fun formatDistance(distanceInMeters: Float): String {
+    return if (distanceInMeters >= 1000) {
+        String.format("%.1f km", distanceInMeters / 1000)
+    } else {
+        "${distanceInMeters.toInt()} m"
     }
 }
