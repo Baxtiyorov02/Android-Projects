@@ -70,7 +70,8 @@ dependencies {
 
 
     implementation (libs.play.services.location)
-
+    implementation (libs.gms.play.services.location.v2110)
+    implementation (libs.kotlinx.coroutines.play.services)
 
     implementation(libs.androidx.navigation.compose.v277)
     implementation(libs.androidx.material)

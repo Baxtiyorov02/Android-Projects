@@ -27,7 +27,7 @@
         <service android:name=".location.LocationService" android:foregroundServiceType="location"
             tools:ignore="ForegroundServicePermission" />
         <activity
-            android:name=".MainActivity"
+            android:name="com.example.learningcompose.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.LearningCompose">

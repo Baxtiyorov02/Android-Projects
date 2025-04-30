@@ -16,6 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.learningcompose.infornation.AppNavHost
 import com.example.learningcompose.infornation.ConsulateViewModel
 import com.example.learningcompose.location.LocationService
+import kotlinx.coroutines.Dispatchers
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,6 +37,7 @@ class MainActivity : ComponentActivity() {
         val viewModel: ConsulateViewModel by viewModels()
 
         setContent {
+            viewModel.loadConsulates(this)
 
             Column(modifier = Modifier.fillMaxSize()) {
 
