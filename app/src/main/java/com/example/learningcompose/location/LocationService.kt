@@ -5,12 +5,13 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.location.Geocoder
+import android.location.LocationManager
 import android.os.Build
 import android.os.IBinder
 import android.provider.Settings
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.example.learningcompose.R
+import com.example.learningcompose.manager.AppLocationManager
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,10 +19,14 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import java.util.Locale
 
 class LocationService:Service() {
+
+    private lateinit var locationManager: AppLocationManager
+
 
     private val serviceScope= CoroutineScope(SupervisorJob()+Dispatchers.IO)
     private lateinit var locationClient: LocationClient
@@ -33,6 +38,7 @@ class LocationService:Service() {
     override fun onCreate() {
         super.onCreate()
 
+        locationManager=AppLocationManager()
         locationClient= DefaultLocationClient(
             applicationContext,
             LocationServices.getFusedLocationProviderClient(applicationContext)
@@ -79,12 +85,17 @@ class LocationService:Service() {
         locationClient.getLocationUpdates(60000L).
                 catch { e -> e.printStackTrace() }
             .onEach { location->
-                val lat=location.latitude.toString()
-                val long=location.longitude.toString()
+
+                val lat=location.latitude
+                val long=location.longitude
+
+
+                locationManager.updateLocation(lat,long)
+
 
                 val mapsUrl = "https://www.google.com/maps/search/?api=1&query=$lat,$long"
-              // val url_loc= convertUrl(lat.toDouble(),long.toDouble())
-                println("AAAAAAAAAAAAAAAA: $mapsUrl")
+                // val url_loc= convertUrl(lat.toDouble(),long.toDouble())
+                // println("AAAAAAAAAAAAAAAA: $mapsUrl")
 
                 val updateNotification=notification.setContentTitle(
                   //  "Location: ($lat,$long)"
@@ -98,11 +109,11 @@ class LocationService:Service() {
 
                 }
 
-    private fun convertUrl(long: Double, lag: Double): String{
+    private fun convertUrl(lat: Double, long: Double): String{
         val address:String
 
         val geocoder = Geocoder(applicationContext, Locale.getDefault())
-        val addresses = geocoder.getFromLocation(long, lag, 1)
+        val addresses = geocoder.getFromLocation(lat, long, 1)
 
         if (!addresses.isNullOrEmpty()) {
               address = addresses[0].getAddressLine(0)

@@ -76,6 +76,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose.v277)
     implementation(libs.androidx.material)
     implementation(kotlin("script-runtime"))
+    // for room
 
 
 }

@@ -12,6 +12,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.ViewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.learningcompose.infornation.AppNavHost
 import com.example.learningcompose.infornation.ConsulateViewModel
@@ -38,6 +39,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             viewModel.loadConsulates(this)
+
 
             Column(modifier = Modifier.fillMaxSize()) {
 
